@@ -3,7 +3,6 @@ package sample;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -18,8 +17,6 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
-import javax.swing.event.DocumentEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -34,6 +31,7 @@ public class Main extends Application {
     public Text firstEventDisplayVector;
     public Text eventRelationshipVector;
     public Text secondEventDisplayVector;
+    public Text allPairResults;
 
     public ComboBox<Event> firstEvent;
     public ComboBox<Event> secondEvent;
@@ -44,16 +42,8 @@ public class Main extends Application {
         eventList = FXCollections.observableArrayList();
 
         //Event comparison tool
-        firstEvent = new ComboBox<Event>(eventList);
+        firstEvent = new ComboBox<>(eventList);
         secondEvent = new ComboBox<>(eventList);
-        firstEvent.onActionProperty().set(e -> {
-            //update first event
-            //attempt to recalculate relationship
-        });
-        secondEvent.onActionProperty().set(e -> {
-            //update second event
-            //attempt to recalculate relationship
-        });
         Text separator = new Text(" - ");
 
         //Event Comparator HBox
@@ -103,6 +93,7 @@ public class Main extends Application {
         //Simulation
         startSimulation.setOnAction(e -> {
             eventList = RunSimulation(eventList, Integer.parseInt(processesInput.getText()),Integer.parseInt(eventsInput.getText()));
+            UpdateFinalDisplay();
         });
 
         //Update displays on change selection
@@ -115,9 +106,13 @@ public class Main extends Application {
         leftPanel.setSpacing(5);
         leftPanel.getChildren().addAll(processesLabel, processesInput, eventsLabel, eventsInput, startSimulation);
 
+        //All pair results text
+        allPairResults = new Text();
+
         BorderPane root = new BorderPane();
         root.leftProperty().set(leftPanel);
         root.rightProperty().set(rightPanel);
+        root.bottomProperty().set(allPairResults);
 
         Scene window = new Scene(root, 700, 500);
         primaryStage.setTitle("Vector Simulator");
@@ -143,6 +138,22 @@ public class Main extends Application {
             }
         }
         return eventList;
+    }
+
+    public void UpdateFinalDisplay(){
+        /*
+        Text allPairResults
+        eventList
+        */
+        /*
+        for each possible combination of events, events paired with themselves not included, determine if they
+        belong in the happen before, concurrent, or not happen before categories.
+        after determining the event state of each possible pair, display all found pairs in the form of:
+        happen-before: (e1, e2)
+        concurrent: (e1, e3)
+        not happen-before: (e2, e1)
+        push this final output to the Text element allPairResults.
+         */
     }
 
     public void UpdateDisplays(){
