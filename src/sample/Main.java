@@ -177,7 +177,7 @@ public class Main extends Application {
     public String PrintIntVector(int[] vector){
         String result = "";
         for (int i:vector) {
-            result += i + ",";
+            result += i + "\n";
         }
         return result;
     }
@@ -185,10 +185,10 @@ public class Main extends Application {
     public String ScalarComparitor(Event first, Event second){
         String result = "";
         if(first.scalarClock < second.scalarClock){
-            result = " May Have Happened Before ";
+            result = "  Happened Before ";
         }
         else if(first.scalarClock > second.scalarClock){
-            result = " Cannot Have Happened Before ";
+            result = " Not Happened Before ";
         }
         else {
             result = " Concurrent With ";
