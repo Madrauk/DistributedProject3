@@ -28,14 +28,24 @@ public class Main extends Application {
 
     ObservableList<Event> eventList;
 
+    public Text firstEventDisplayScalar;
+    public Text eventRelationshipScalar;
+    public Text secondEventDisplayScalar;
+    public Text firstEventDisplayVector;
+    public Text eventRelationshipVector;
+    public Text secondEventDisplayVector;
+
+    public ComboBox<Event> firstEvent;
+    public ComboBox<Event> secondEvent;
+
     @Override
     public void start(Stage primaryStage) throws Exception{
         //Instantiate eventList
         eventList = FXCollections.observableArrayList();
 
         //Event comparison tool
-        ComboBox<Event> firstEvent = new ComboBox<Event>(eventList);
-        ComboBox<Event> secondEvent = new ComboBox<>(eventList);
+        firstEvent = new ComboBox<Event>(eventList);
+        secondEvent = new ComboBox<>(eventList);
         firstEvent.onActionProperty().set(e -> {
             //update first event
             //attempt to recalculate relationship
@@ -51,16 +61,25 @@ public class Main extends Application {
         eventComparison.setPadding(new Insets(5));
         eventComparison.setSpacing(5);
         eventComparison.getChildren().addAll(firstEvent, separator, secondEvent);
+        eventComparison.setAlignment(Pos.CENTER);
 
         //Event comparison display
-        Text firstEventDisplay = new Text();
-        firstEventDisplay.setTextAlignment(TextAlignment.CENTER);
-        Text eventRelationship = new Text();
-        eventRelationship.setTextAlignment(TextAlignment.CENTER);
-        Text secondEventDisplay = new Text();
-        secondEventDisplay.setTextAlignment(TextAlignment.CENTER);
-        HBox relationshipDisplay = new HBox();
-        relationshipDisplay.getChildren().addAll(firstEventDisplay, eventRelationship, secondEventDisplay);
+        firstEventDisplayScalar = new Text();
+        eventRelationshipScalar = new Text();
+        eventRelationshipScalar.setTextAlignment(TextAlignment.CENTER);
+        secondEventDisplayScalar = new Text();
+        secondEventDisplayScalar.setTextAlignment(TextAlignment.RIGHT);
+        firstEventDisplayVector = new Text();
+        eventRelationshipVector = new Text();
+        eventRelationshipVector.setTextAlignment(TextAlignment.CENTER);
+        secondEventDisplayVector = new Text();
+        secondEventDisplayVector.setTextAlignment(TextAlignment.RIGHT);
+        HBox relationshipDisplayScalar = new HBox();
+        relationshipDisplayScalar.getChildren().addAll(firstEventDisplayScalar, eventRelationshipScalar, secondEventDisplayScalar);
+        relationshipDisplayScalar.setAlignment(Pos.CENTER);
+        HBox relationshipDisplayVector = new HBox();
+        relationshipDisplayVector.getChildren().addAll(firstEventDisplayVector, eventRelationshipVector, secondEventDisplayVector);
+        relationshipDisplayVector.setAlignment(Pos.CENTER);
 
         //Right VBox
         VBox rightPanel = new VBox();
@@ -68,7 +87,7 @@ public class Main extends Application {
         rightPanel.setSpacing(5);
         rightPanel.setAlignment(Pos.TOP_LEFT);
         rightPanel.setMinSize(300,0);
-        rightPanel.getChildren().addAll(eventComparison, relationshipDisplay);
+        rightPanel.getChildren().addAll(eventComparison, relationshipDisplayScalar, relationshipDisplayVector);
 
         //# of processes input
         Label processesLabel = new Label("Number of processes to simulate:");
@@ -127,7 +146,87 @@ public class Main extends Application {
     }
 
     public void UpdateDisplays(){
-        System.out.println("selection changed");
+        /*
+        ComboBox firstEvent
+        ComboBox secondEvent
+        Text firstEventDisplayScalar
+        Text eventRelationshipScalar
+        Text secondEventDisplayScalar
+        Text firstEventDisplayVector
+        Text eventRelationshipVector
+        Text secondEventDisplayVector
+         */
+        Event first = firstEvent.getSelectionModel().getSelectedItem();
+        Event second = secondEvent.getSelectionModel().getSelectedItem();
+        try {
+            if (firstEvent.getSelectionModel().getSelectedItem().equals(null) || secondEvent.getSelectionModel().getSelectedItem().equals(null)) {
+                return;
+            }
+        }
+        catch(Exception e){
+            return;
+        }
+        firstEventDisplayScalar.setText("" + first.scalarClock);
+        secondEventDisplayScalar.setText("" + second.scalarClock);
+        eventRelationshipScalar.setText(ScalarComparitor(first, second));
+        firstEventDisplayVector.setText(PrintIntVector(first.vector));
+        secondEventDisplayVector.setText(PrintIntVector(second.vector));
+        eventRelationshipVector.setText(VectorComparitor(first, second));
+    }
+
+    public String PrintIntVector(int[] vector){
+        String result = "";
+        for (int i:vector) {
+            result += i + ",";
+        }
+        return result;
+    }
+
+    public String ScalarComparitor(Event first, Event second){
+        String result = "";
+        if(first.scalarClock < second.scalarClock){
+            result = " May Have Happened Before ";
+        }
+        else if(first.scalarClock > second.scalarClock){
+            result = " Cannot Have Happened Before ";
+        }
+        else {
+            result = " Concurrent With ";
+        }
+        return result;
+    }
+
+    public String VectorComparitor(Event first, Event second){
+        String result = "";
+        //determine concurrency
+        for(int i=0;i<first.vector.length;i++){
+            if(first.vector[i] == second.vector[i]){
+                result = " Concurrent With ";
+            }
+            else{
+                result = "";
+                break;
+            }
+        }
+        if(result != ""){
+            return result;
+        }
+        //determine happened-before
+        for(int i=0;i<first.vector.length;i++){
+            if(first.vector[i] <= second.vector[i]){
+                result = " Happened Before ";
+            }
+            else{
+                result = "";
+                break;
+            }
+        }
+        if(result != ""){
+            return result;
+        }
+        //determine not-happened-before
+        result = " Not Happened Before ";
+        return result;
     }
 
     public static void main(String[] args) {
