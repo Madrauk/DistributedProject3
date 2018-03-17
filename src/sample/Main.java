@@ -110,7 +110,7 @@ public class Main extends Application {
 
         //All pair results text
         allPairResults = new Text();
-        allPairResults.wrappingWidthProperty().bind(root.widthProperty());
+        allPairResults.wrappingWidthProperty().bind(scroll.widthProperty().subtract(20));
         scroll.setContent(allPairResults);
         scroll.setMaxHeight(200);
 
