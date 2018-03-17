@@ -6,10 +6,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -106,13 +103,21 @@ public class Main extends Application {
         leftPanel.setSpacing(5);
         leftPanel.getChildren().addAll(processesLabel, processesInput, eventsLabel, eventsInput, startSimulation);
 
+        BorderPane root = new BorderPane();
+
+        //ScrollPane to contain pair results
+        ScrollPane scroll = new ScrollPane();
+
         //All pair results text
         allPairResults = new Text();
+        allPairResults.wrappingWidthProperty().bind(root.widthProperty());
+        scroll.setContent(allPairResults);
+        scroll.setMaxHeight(200);
 
-        BorderPane root = new BorderPane();
+
         root.leftProperty().set(leftPanel);
         root.rightProperty().set(rightPanel);
-        root.bottomProperty().set(allPairResults);
+        root.bottomProperty().set(scroll);
 
         Scene window = new Scene(root, 700, 500);
         primaryStage.setTitle("Vector Simulator");
@@ -154,6 +159,26 @@ public class Main extends Application {
         not happen-before: (e2, e1)
         push this final output to the Text element allPairResults.
          */
+        String happenedBefore = "";
+        String notHappenedBefore = "";
+        String concurrentWith = "";
+        for(int i=0;i<eventList.size();i++){
+            for(int o=0;o<eventList.size();o++){
+                if(i != o){
+                    String relation = VectorComparitor(eventList.get(i), eventList.get(o));
+                    if(relation.equals(" Happened Before ")){
+                        happenedBefore += "(" + eventList.get(i).toString() + "," + eventList.get(o).toString() + ")";
+                    }
+                    else if(relation.equals(" Not Happened Before ")){
+                        notHappenedBefore += "(" + eventList.get(i).toString() + "," + eventList.get(o).toString() + ")";
+                    }
+                    else if(relation.equals(" Concurrent With ")){
+                        concurrentWith += "(" + eventList.get(i).toString() + "," + eventList.get(o).toString() + ")";
+                    }
+                }
+            }
+        }
+        allPairResults.setText("Happened before: " + happenedBefore + "\n" + "Not Happened Before: " + notHappenedBefore + "\n" + "Concurrent With: " + concurrentWith);
     }
 
     public void UpdateDisplays(){
@@ -196,7 +221,7 @@ public class Main extends Application {
     public String ScalarComparitor(Event first, Event second){
         String result = "";
         if(first.scalarClock < second.scalarClock){
-            result = "  Happened Before ";
+            result = " Happened Before ";
         }
         else if(first.scalarClock > second.scalarClock){
             result = " Not Happened Before ";
